@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .radin-bg{
+            position: absolute;
+            left:210px;
+            top:90px;
+            width: 35px;
+            height: 151px;
+            background: url('./images/radin_lt.png') no-repeat;
+            transform: rotateY(180deg)
+        }
+        .list{
+            position: relative;
+            width: 502px;
+            height: 308px;
+            background: url('./images/engine_bg.png') no-repeat;
+            background-size: 100% auto;
+        }
+        .list .svg-rt{
+            position: absolute;
+            right:132px;
+            top:50px;
+        }
+        .list .data{
+            position: absolute;
+            right:264px;
+            top:210px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="list">
+        <div class="data"></div>
+    </div>
+    <input type="text" id="currValue"/>
+    <div id="svgView">
+        
+    </div>
+    
+
+    
+    <script>
+        function coordMap(x, y, R, a) {
+            var ta = (360 - a) * Math.PI / 180,
+                tx, ty;
+            tx = R * Math.cos(ta); // 角度邻边
+            ty = R * Math.sin(ta); // 角度的对边
+            return {
+                x: x + tx,
+                y: y - ty // 注意此处是“-”号，因为我们要得到的Y是相对于（0,0）而言的。
+            }
+        }
+
+
+        function drawSVG(data) {
+            var path,
+                // 起点坐标
+                s = new coordMap(data.x, data.y, data.R, data.startAngle),
+                // 结束坐标
+                e = new coordMap(data.x, data.y, data.R, data.endAngle),
+                // 创建弧线路径
+                tpath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            // 画一段到(x,y)的椭圆弧. 椭圆弧的 x, y 轴半径分别为 rx,ry. 椭圆相对于 x 轴旋转 x-axis-rotation 度. large-arc=0表明弧线小于180读, large-arc=1表示弧线大于180度. sweep=0表明弧线逆时针旋转, sweep=1表明弧线顺时间旋转.
+            // svg : [A | a] (rx ry x-axis-rotation large-arc-flag sweep-flag x y)+ 
+            path = 'M' + s.x + ',' + s.y + 'A' + data.R + ',' + (data.R - 10) + ',0,' + (+(data.endAngle - data.startAngle > 180)) + ',0,' + e.x + ',' + e.y;
+            // 设置路径
+            tpath.setAttribute('d', path);
+            // 去掉填充
+            tpath.setAttribute("fill", "none");
+            // 设置颜色
+            tpath.setAttribute('stroke', data.color || '#CCC');
+            // 边线宽度
+            tpath.setAttribute('stroke-width', data.strokeWidth || 1);
+            data.strokelinecap ? tpath.setAttribute('stroke-linecap', data.strokelinecap) : '';
+            data.strokeDasharray ? tpath.setAttribute('stroke-dasharray', data.strokeDasharray) : '';
+            data.transform ? tpath.setAttribute('transform', data.transform) : '';
+            return tpath;
+        }
+
+        function svgView($select, svgID ,percent) {
+            var percent = percent,
+            // 创建SVG
+            svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("version", "1.1"); // IE9+ support SVG 1.1 version
+            svg.setAttribute("class", svgID);
+            svg.setAttribute("width", "240px");
+            svg.setAttribute("height", "240px");
+            svg.setAttribute("data-percent", percent);
+            // 画底线并加入SVG中
+            svg.appendChild(new drawSVG({
+                startAngle: -45,
+                endAngle: -135,
+                x: 120,
+                y: 130,
+                R: 104,
+                strokelinecap: 'butt',
+                color: '#eee',
+                strokeWidth: 8,
+                transform: 'rotate(-270, 120, 130)'
+            }));
+
+            svg.appendChild(new drawSVG({
+                startAngle: -45,
+                endAngle: -45 + (- 90 / 100 * percent),
+                x: 120,
+                y: 130,
+                R: 104,
+                strokelinecap: 'butt',
+                color: '#00d765',
+                strokeWidth: 8,
+                transform: 'rotate(-270, 120, 130)'
+            }));
+
+            document.querySelector($select).appendChild(svg);
+        }
+        
+        
+
+
+        function svgChangeValue(svg, percent){
+            let oldPercent = Number(svg.getAttribute("data-percent"));
+            
+            // 创建新的弧线 替换进度弧线
+            let startDeg = Math.floor(-45 +  (- 90 / 100 * oldPercent));
+            let stopDeg = Math.floor(-45 +  (- 90 / 100 * percent));
+            if(startDeg == stopDeg) return;
+            let i = 0;
+            console.log(startDeg, stopDeg);
+
+            function changeInterval(){
+                svg.replaceChild(new drawSVG({
+                    startAngle: -45,
+                    endAngle: startDeg + i,
+                    x: 120,
+                    y: 130,
+                    R: 104,
+                    strokelinecap: 'butt',
+                    strokeWidth: 8,
+                    color: '#00d765',
+                    transform: 'rotate(-270, 120, 130)'
+                }), svg.lastChild);
+            
+                if(startDeg < stopDeg){
+                    ++i;
+                }else{
+                   --i;
+                }
+                console.log(startDeg + i,  stopDeg);
+                if(startDeg + i== stopDeg){
+                    clearInterval(ct)
+                }
+            }
+
+            function changeFast(){
+                svg.replaceChild(new drawSVG({
+                    startAngle: -45,
+                    endAngle: stopDeg,
+                    x: 120,
+                    y: 130,
+                    R: 104,
+                    strokelinecap: 'butt',
+                    strokeWidth: 8,
+                    color: '#00d765',
+                    transform: 'rotate(-270, 120, 130)'
+                }), svg.lastChild);
+            }
+            
+            //let ct = setInterval(changeInterval, 20)
+
+            changeFast();
+
+            svg.setAttribute("data-percent", percent);
+
+        }
+
+        svgView('.list', 'svg-rt', 60);
+
+        let list = document.querySelector('.list'),
+            svg = list.querySelector('svg'),
+            data = list.querySelector('.data');
+
+        function setData(value){
+            svg && svgChangeValue(svg, value);
+            data.innerHTML = value + '%';
+        }
+
+        document.querySelector('#currValue').onchange = function(e){
+            //svgChangeValue(svg, e.target.value);
+            setData(e.target.value);
+        }
+
+        setData(60);
+        
+    </script>
+</body>
+</html>

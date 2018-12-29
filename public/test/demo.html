@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/engineSVG.css" />
+</head>
+<body>
+    <input type="checkbox" value="true"/>
+    <table class="m-table">
+        <thead>
+            <tr>
+                <td>aaa</td>
+                <td>bbb</td>
+                <td>ccc</td>
+                <td>ddd</td>
+                <td>eee</td>
+                <td>fff</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr  class="list list-1">
+                <td class="id">ID:123456789</td>
+                <td class="pos">第三根红色管子阀门的末端位置</td>
+                <td class="FB0">远程</td>
+                <td class="open-state">正在开</td>
+                <td class="open-amounts">100<span class="unit percent">%</span></td>
+                <td class="pos-amounts">30<span class="unit percent">%</span></td>
+                <td class="online-state">在线<i class="dot"></i></td>
+                <td class="AI">123<span class="unit">AI</span></td>
+                <td class="Mpa">52<span class="unit">Mpa</span></td>
+                <td class="mA">4-20<span class="unit">mA</span></td>
+                <td class="warning">报警<i class="dot"></i></td>
+                <td class="AO">456<span class="unit">AO</span></td>
+                <td class="ATMP">32<span class="unit">℃</span></td>
+                <td class="VFW">32<span class="unit">m^3/h</span></td>
+                <td>
+                    <div class="btn-open-tooltip" ></div>
+                    <div class="tooltip" target-id="111111">
+                        <button class="open-valve">开阀</button>
+                        <button class="close-valve">关阀</button>
+                        <button class="stop-valve">停止</button>
+                        <button class="mid-pos-valve">中间位置</button>
+                        <div class="btn-close-tooltip"></div>
+                    </div>
+                    
+                </td>
+                <td class="msg"></td>
+            </tr>
+            <tr  class="list list-2 un-active">
+                <td class="id">ID:123456789</td>
+                <td class="pos">第三根红色管子阀门的末端位置第三根红色管子阀门的末端位置</td>
+                <td class="open-state">半开位</td>
+                <td class="open-amounts">50<span class="unit percent">%</span></td>
+                <td class="pos-amounts">30<span class="unit percent">%</span></td>
+                <td class="online-state">在线<i class="dot"></i></td>
+                <td class="AI">123<span class="unit">AI</span></td>
+                <td class="Mpa">52<span class="unit">Mpa</span></td>
+                <td class="mA">4-20<span class="unit">mA</span></td>
+                <td class="warning">报警<i class="dot"></i></td>
+                <td class="AO">456<span class="unit">AO</span></td>
+                <td class="ATMP">32<span class="unit">℃</span></td>
+                <td class="VFW">32323<span class="unit">m^3/h</span></td>
+                <td class="msg active">阀位不变</td>
+
+                <td >
+                    <div class="btn-open-tooltip"></div>
+                    <div class="tooltip" target-id="222222">
+                        <button class="open-valve">开阀</button>
+                        <button class="close-valve">关阀</button>
+                        <button class="stop-valve">停止</button>
+                        <button class="mid-pos-valve">中间位置</button>
+                        <div class="btn-close-tooltip"></div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./js/engineSVG.js"></script>
+    <script>
+
+        window.onload = function(){
+            for(var i = 1; i <= 2;i++){
+                lsl.drawSVG('.list-' + i, {
+                    left : {
+                        className : 'path-left',
+                        data : getRandom()
+                    },
+                    right : {
+                        className : 'path-right',
+                        data : getRandom()
+                    }
+                });
+            }
+
+            setTimeout(function(){
+                let number = getRandom();
+                let randomList = document.querySelector(getRandomList());
+                //console.log(randomList, number);
+                lsl.setSvgData(randomList.querySelector('svg'), number % 2 ? 'path-left' : 'path-right', number);
+            }, 3000)
+
+
+            function getRandom(){
+                return Math.floor(Math.random() * 101);
+            }
+
+            function getRandomList(){
+                return '.list-' + Math.floor(Math.random() * 2 + 1)
+            }
+        }
+
+        $(function(){
+            
+            $('.m-table').on('click', '.btn-open-tooltip', function(e){
+                $(this).parent().find('.tooltip').fadeIn();
+                return false
+            })
+            .on('click', '.btn-close-tooltip', function(e){
+                $(this).parent().fadeOut();
+                return false;
+            })
+            .on('click', '.open-valve', function(){
+                console.log('开阀', $(this).parent().attr('target-id'));
+                return false;
+            })
+            .on('click', '.close-valve', function(){
+                console.log('关阀', $(this).parent().attr('target-id'));
+                return false;
+            })
+            .on('click', '.stop-valve', function(){
+                console.log('停阀', $(this).parent().attr('target-id'));
+                return false;
+            })
+            .on('click', '.mid-pos-valve', function(){
+                console.log('阀门置于中间位置', $(this).parent().attr('target-id'));
+                return false;
+            });
+
+            $(document).on('click', function(){
+                $('.tooltip').fadeOut();
+            });
+        });
+        
+
+
+    </script>
+</body>
+</html>

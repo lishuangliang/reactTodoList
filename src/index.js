@@ -1,12 +1,39 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, {Component} from 'react';
+import ReactDom from 'react-dom';
 import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import items from './mock/product';
+import ProductTable from  './component/productTable/index';
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.unregister();
+class App extends Component{
+  constructor(){
+    super();
+    this.state = {
+      items : items
+    }
+  }
+  addList(value){
+    let items = this.state.items;
+    let obj = {
+      id : items.length ? Math.max(...items.map(list => list.id)) + 1 : 1,
+      text : value,
+      unfresh : true
+    }
+    this.setState({
+      items : items.concat(obj)
+    })
+    
+  }
+  render(){
+    return (
+      <div className="container">
+        <ProductTable items={this.state.items} onAddList={this.addList.bind(this)}/>
+      </div>
+    )
+  }
+}
+
+ReactDom.render(
+  <App/>,
+  document.getElementById('root')
+)
